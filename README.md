@@ -11,14 +11,6 @@ Copy the contents of the file `code/c3-main.cpp` into the file `/home/workspace/
 
 # Usage
 
-In the Udacity workspace of the project "Scan Matching Localization", compile the project, after you copied the file `code/c3-main.cpp`. Use these Unix commands:
-
-```
-cd /home/workspace/c3-project
-cmake .
-make
-```
-
 Press the blue button "Desktop". Start one terminal. Run the Carla simulator by using these Unix commands:
 
 ```
@@ -26,6 +18,28 @@ su - student # Ignore Permission Denied, if you see student@ you are good
 cd /home/workspace/c3-project
 ./run_carla.sh
 ```
+
+Start another terminal. Compile the project by using these Unix commands:
+
+```
+cd /home/workspace/c3-project
+cmake .
+make
+```
+
+Run the project with the NDT algorithm by using Unix command:
+
+```
+./cloud_loc
+```
+
+Or run the project with the ICP algorithm by using Unix command:
+
+```
+./cloud_loc 2
+```
+
+
 
 # Demos
 
