@@ -99,6 +99,8 @@ void drawCar(Pose pose, int num, Color color, double alpha, pcl::visualization::
 	renderBox(viewer, box, num, color, alpha);
 }
 
+// Declare the function to use the ICP algorithm with some predefined parameters.
+// This algorithm matches the scan cloud with the corresponding cloud points in the map cloud and finds the corresponding transform matrix.
 Eigen::Matrix4d ICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose startingPose) {
     Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
     Eigen::Matrix4d initTransform = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z);
@@ -130,6 +132,8 @@ Eigen::Matrix4d ICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose start
     return transformation_matrix;
 }
 
+// Declare the function to use the NDT algorithm with some predefined parameters.
+// This algorithm matches the scan cloud with the corresponding cloud points in the map cloud and finds the corresponding transform matrix.
 Eigen::Matrix4d NDT(PointCloudT::Ptr mapCloud, PointCloudT::Ptr source, Pose startingPose) {
     pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
     // Setting minimum transformation difference for termination condition.
@@ -157,6 +161,7 @@ Eigen::Matrix4d NDT(PointCloudT::Ptr mapCloud, PointCloudT::Ptr source, Pose sta
     return transformation_matrix;
 }
 
+// Prints the transform matrix.
 void print_transform(Eigen::Matrix4d transform) {
  for(int i = 0; i < 4; i++) {
   for(int j = 0; j < 4; j++) {
@@ -168,9 +173,13 @@ void print_transform(Eigen::Matrix4d transform) {
 }
 
 int main(int argc, char *argv[]) {
+        // Declare the variable USE_NDT. Its default value is true.
         int USE_NDT = 1;
+        // Use the ICP algorithm only if we execute the command "./cloud_loc 2"
         if(argc == 2 && strcmp(argv[1], "2") == 0) USE_NDT = 0;
+        // Print the matching algorithm we will use.
         printf("\n%s\n\n", USE_NDT ? "Using Algorithm 1: Normal Distributions Transform (NDT)" : "Using Algorithm 2: Iterative Closest Point (ICP)");
+        // Declare the variable number of scans.
 	int n_scans = 0;
 	
 	auto client = cc::Client("localhost", 2000);
@@ -226,7 +235,7 @@ int main(int argc, char *argv[]) {
 					pclCloud.points.push_back(PointT(detection.point.x, detection.point.y, detection.point.z));
 				}
 			}
-			if(pclCloud.points.size() > 10000) { //5000){ // CANDO: Can modify this value to get different scan resolutions
+			if(pclCloud.points.size() > 5000) { //5000){ // CANDO: Can modify this value to get different scan resolutions
 				lastScanTime = std::chrono::system_clock::now();
 				*scanCloud = pclCloud;
 				new_scan = false;
@@ -276,27 +285,38 @@ int main(int argc, char *argv[]) {
 				pose.position = truePose.position;
 				pose.rotation = truePose.rotation;
 			}
+			// Count the number of scans.
 		        n_scans++;
 			
 			new_scan = true;
 			// TODO: (Filter scan using voxel filter)
 			
+			// Declare the voxel grid, which will speed up the matching algorithms.
 			pcl::VoxelGrid<PointT> vg;
+			// Set the input cloud
 			vg.setInputCloud(scanCloud);
+			// Declare the filter resolution
 			double filterRes = 0.5; //0.1; //0.5;
+			// Set the leaf size of the voxel grid.
 			vg.setLeafSize(filterRes, filterRes, filterRes);
+			// Declare the cloud filtered.
 			typename pcl::PointCloud<PointT>::Ptr cloudFiltered (new pcl::PointCloud<PointT>);
+			// Filter the cloud points.
 			vg.filter(*cloudFiltered);
 
 			// TODO: Find pose transform by using ICP or NDT matching
 			//pose = ....
 			
+			// Find the matching transform by using either NDT or ICP, depending on the command parameter.
 			Eigen::Matrix4d matching_transform = USE_NDT ? NDT(mapCloud, cloudFiltered, pose) : ICP(mapCloud, cloudFiltered, pose);
+			// Get the pose based on the matching transform.
 			pose = getPose(matching_transform);
 
 			// TODO: Transform scan so it aligns with ego's actual pose and render that scan
 			
+			// Declare the corrected scan.
 			PointCloudT::Ptr corrected_scan (new PointCloudT);
+			// Transform the cloud filtered into the corrected scan.
 			pcl::transformPointCloud (*cloudFiltered, *corrected_scan, matching_transform);
 			//sprintf(corrected_scan_string, "corrected_scan_%d", iteration);
 			//renderPointCloud(viewer, corrected_scan, corrected_scan_string, Color(0,1,1)); // render corrected scan
@@ -305,6 +325,7 @@ int main(int argc, char *argv[]) {
 			// TODO: Change `scanCloud` below to your transformed scan
 			
 			//print_transform(matching_transform);
+			// Render the corrected scan.
 			renderPointCloud(viewer, corrected_scan, "scan", Color(1,0,0) );
 			//renderPointCloud(viewer, scanCloud, "scan", Color(1,0,0) );
 
