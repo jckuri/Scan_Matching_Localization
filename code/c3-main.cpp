@@ -109,13 +109,13 @@ Eigen::Matrix4d ICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose start
     time.tic ();
     pcl::IterativeClosestPoint<PointT, PointT> icp;
     icp.setTransformationEpsilon(1e-8); //0.000001);
-    int iterations = 50; //50; //25; //4; //3;
-    icp.setMaximumIterations (iterations);
-    icp.setInputSource (transformSource);
-    icp.setInputTarget (target);
-    //icp.setMaxCorrespondenceDistance (2);
+    int iterations = 60; //50; //25; //4; //3;
+    icp.setMaximumIterations(iterations);
+    icp.setInputSource(transformSource);
+    icp.setInputTarget(target);
+    //icp.setMaxCorrespondenceDistance(20); //15); //8); //2);
     //icp.setTransformationEpsilon(0.001);
-    //icp.setEuclideanFitnessEpsilon(.05);
+    //icp.setEuclideanFitnessEpsilon(0.00001); //.05);
     //icp.setRANSACOutlierRejectionThreshold (10);
 
     PointCloudT::Ptr cloud_icp (new PointCloudT);  // ICP output point cloud
@@ -133,11 +133,12 @@ Eigen::Matrix4d ICP(PointCloudT::Ptr target, PointCloudT::Ptr source, Pose start
 Eigen::Matrix4d NDT(PointCloudT::Ptr mapCloud, PointCloudT::Ptr source, Pose startingPose) {
     pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
     // Setting minimum transformation difference for termination condition.
-    ndt.setTransformationEpsilon(1e-8); //0.000001);//.0001); 
+    ndt.setTransformationEpsilon(1e-8); //1e-8); //1e-8); //0.000001);//.0001); 
     // Setting maximum step size for More-Thuente line search.
-    ndt.setStepSize(1);
+    //ndt.setStepSize(20); //15); //8); //5); //2); //1);
     //Setting Resolution of NDT grid structure (VoxelGridCovariance).
-    ndt.setResolution(1);
+    ndt.setResolution(1); //1.5); //2); //0.5); //1);
+    //ndt.setEuclideanFitnessEpsilon(0.00001); //.05);
     ndt.setInputTarget(mapCloud);
 
     pcl::console::TicToc time;
@@ -145,9 +146,9 @@ Eigen::Matrix4d NDT(PointCloudT::Ptr mapCloud, PointCloudT::Ptr source, Pose sta
     Eigen::Matrix4f init_guess = transform3D(startingPose.rotation.yaw, startingPose.rotation.pitch, startingPose.rotation.roll, startingPose.position.x, startingPose.position.y, startingPose.position.z).cast<float>();
 
     // Setting max number of registration iterations.
-    int iterations = 50; //25; //15; //10; //6; //3;
-    ndt.setMaximumIterations (iterations);
-    ndt.setInputSource (source);
+    int iterations = 60; //60; //50; //25; //15; //10; //6; //3;
+    ndt.setMaximumIterations(iterations);
+    ndt.setInputSource(source);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ndt (new pcl::PointCloud<pcl::PointXYZ>);
     ndt.align (*cloud_ndt, init_guess);
