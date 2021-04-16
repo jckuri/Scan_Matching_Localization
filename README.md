@@ -39,7 +39,7 @@ Or run the project with the ICP algorithm by using Unix command:
 ./cloud_loc 2
 ```
 
-Once the project is running, tap the UP key 3 times, with delays of 1 second between taps. If the green car gets left behind, run the project again and tap the UP key 3 times again. The second run usually produces better results than the first run does. **IMPORTANT: Never stop the Carla simulator.**
+Once the project is running, click on the map and tap the UP key 3 times, with delays of 1 second between taps. If the green car gets left behind, run the project again and tap the UP key 3 times again. The second run usually produces better results than the first run does. **IMPORTANT: Never stop the Carla simulator.**
 
 
 # Video Demonstrations
