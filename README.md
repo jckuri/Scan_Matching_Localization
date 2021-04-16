@@ -39,9 +39,10 @@ Or run the project with the ICP algorithm by using Unix command:
 ./cloud_loc 2
 ```
 
+Once the project is running, tap the UP key 3 times, with delays of 1 second per each tap. If the green car is left behind, run the project again and tap the UP key 3 times again. The second run usually produce better results than the first run does. **IMPORTANT: Never stop the Carla simulator.**
 
 
-# Demos
+# Video Demonstrations
 
 **Scan Matching Localization with LIDAR Point Clouds - Algorithm 1: Normal Distributions Transform NDT<br/>
 https://youtu.be/EOKKcwuBtzo**
